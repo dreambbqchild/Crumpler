@@ -68,7 +68,7 @@ ComPtr<ID3D11Texture2D> RichEditWnd::CreateTexture(ComPtr<ID3D11Device1>& pD3DDe
 	bmih.biPlanes = 1;
 	bmih.biBitCount = 32;
 	bmih.biWidth = width;
-	bmih.biHeight = 0 - height;
+	bmih.biHeight = height;
 	bmih.biCompression = BI_RGB;
 	bmih.biSizeImage = 0;
 

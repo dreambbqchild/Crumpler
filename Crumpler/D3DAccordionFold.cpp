@@ -26,10 +26,10 @@ void D3D11AccordionFold::Resize()
 		auto low = i / (float)segments;
 		auto high = (i + 1) / (float)segments;
 		planes[i]->SetShaderInput([halfWidth, halfHeight, low, high](SHADER_INPUT points[4]) {
-			points[0] = SHADER_INPUT(-halfWidth, halfHeight, 0.0f, low, 1.0f);
-			points[1] = SHADER_INPUT(halfWidth, halfHeight, 0.0f, high, 1.0f);
-			points[2] = SHADER_INPUT(halfWidth, -halfHeight, 0.0f, high, 0.0f);
-			points[3] = SHADER_INPUT(-halfWidth, -halfHeight, 0.0f, low, 0.0f);
+			points[0] = SHADER_INPUT(-halfWidth, halfHeight, 0.0f, low, 0.0f);
+			points[1] = SHADER_INPUT(halfWidth, halfHeight, 0.0f, high, 0.0f);
+			points[2] = SHADER_INPUT(halfWidth, -halfHeight, 0.0f, high, 1.0f);
+			points[3] = SHADER_INPUT(-halfWidth, -halfHeight, 0.0f, low, 1.0f);
 		});
 	}
 

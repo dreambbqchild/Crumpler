@@ -14,10 +14,24 @@ D3D11Wnd* pD3DWnd = nullptr;
 D3D11AccordionFold* accordion = nullptr;
 HWND hwndButton = nullptr;
 
+const float animationLength = 1500.0f;
 bool animationRunning = false;
 float percentage = 0.0f;
 bool needNewImage = false;
 DWORD animationStart = 0;
+
+void LoseText() 
+{
+	srand((UINT)time(nullptr));
+	auto bStr = pRichEditWnd->SelectText();
+	const wchar_t* cStr = bStr;
+	for (UINT i = 0; i < bStr.length(); i++)
+	{
+		wchar_t c = cStr[i];
+		if (c < 255 && !isspace(c) && (rand() % 100) < 33)
+			pRichEditWnd->BlankOutCharacterAtForCurrentlySelectedText(i);
+	}
+}
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -29,23 +43,30 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		if (HIWORD(wParam) == BN_CLICKED)
 		{			
-			D3D11BasicShader::Singleton()->SetTexture(pD3DWnd->Factory()->CreateTexture(pRichEditWnd));
-			srand((UINT)time(nullptr));
-			auto bStr = pRichEditWnd->SelectText();
-			const wchar_t* cStr = bStr;
-			for (UINT i = 0; i < bStr.length(); i++)
+			if (!animationRunning) 
 			{
-				wchar_t c = cStr[i];
-				if (c < 255 && !isspace(c) && (rand() % 100) < 33)
-					pRichEditWnd->BlankOutCharacterAtForCurrentlySelectedText(i);
+				D3D11BasicShader::Singleton()->SetTexture(pD3DWnd->Factory()->CreateTexture(pRichEditWnd));
+				
+				LoseText();
+
+				pD3DWnd->IsVisible(true);
+				pRichEditWnd->IsVisible(false);
+
+				needNewImage = true;
+				animationRunning = true;
+				animationStart = GetTickCount();
 			}
-
-			pD3DWnd->IsVisible(true);
-			pRichEditWnd->IsVisible(false);			
-
-			needNewImage = true;
-			animationRunning = true;
-			animationStart = GetTickCount();
+			else
+			{
+				auto now = GetTickCount();
+				if (now - animationStart > animationLength * 0.5f) 
+				{
+					LoseText();
+					needNewImage = true;
+					auto offset = (DWORD)(now - animationStart - (animationLength * 0.5f));
+					animationStart = now - (animationLength * 0.5f - offset);
+				}
+			}
 			break;
 		}
 	}
@@ -81,8 +102,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	pD3DWnd = new D3D11Wnd(clientSize, hWnd, hInstance);
 	pD3DWnd->IsVisible(false);
 	pD3DWnd->Draw = []() 
-	{
-		const float animationLength = 1500.0f;
+	{		
 		if (!animationRunning) 
 			return;
 

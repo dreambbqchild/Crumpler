@@ -31,9 +31,10 @@ D3D11BasicShader::D3D11BasicShader(ComPtr<ID3D11Device1> &pD3DDevice, Microsoft:
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20,  D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
-	wvp.world = wvp.view = wvp.projection = XMMatrixIdentity();
+	wvp.world = wvp.viewProjection = XMMatrixIdentity();
 
 	ReadFileAsBytes("PixelShader.cso", [&](BYTE* data, size_t length)
 	{
@@ -43,13 +44,12 @@ D3D11BasicShader::D3D11BasicShader(ComPtr<ID3D11Device1> &pD3DDevice, Microsoft:
 	ReadFileAsBytes("VertexShader.cso", [&](BYTE* data, size_t length)
 	{
 		pD3DDevice->CreateVertexShader(data, length, nullptr, &pVertexShader);
-		pD3DDevice->CreateInputLayout(basic, 2, data, length, &pInputLayout);
+		pD3DDevice->CreateInputLayout(basic, ARRAYSIZE(basic), data, length, &pInputLayout);
 	});
 
-	//Going to try to do this on the CPU.
 	D3D11_BUFFER_DESC matrixBufferDesc = { 0 };
 	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	matrixBufferDesc.ByteWidth = sizeof(XMMATRIX);
+	matrixBufferDesc.ByteWidth = sizeof(WVP);
 	matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
@@ -76,12 +76,12 @@ void D3D11BasicShader::SetTexture(ComPtr<ID3D11Texture2D>& texture)
 void D3D11BasicShader::UpdateModelMatrix(XMMATRIX& model)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	XMMATRIX* pMatrix;
-	XMMATRIX result = XMMatrixTranspose(model * wvp.view * wvp.projection);
+	WVP* pMatrix;	
+	wvp.world = XMMatrixTranspose(model);
 
 	pD3DContext->Map(pMatrixBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	pMatrix = (XMMATRIX*)mappedResource.pData;
-	*pMatrix = result;
+	pMatrix = (WVP*)mappedResource.pData;
+	*pMatrix = wvp;
 	pD3DContext->Unmap(pMatrixBuffer.Get(), 0);
 
 	pD3DContext->VSSetConstantBuffers(0, 1, pMatrixBuffer.GetAddressOf());

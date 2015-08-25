@@ -8,14 +8,7 @@
 struct WVP
 {
 	DirectX::XMMATRIX  world;
-	DirectX::XMMATRIX  view;
-	DirectX::XMMATRIX  projection;
-};
-
-class WVP_MASK
-{
-public:
-	enum Mask { World = (1 << 0), View = (1 << 1), Projection = (1 << 2) };
+	DirectX::XMMATRIX  viewProjection;
 };
 
 struct SHADER_INPUT
@@ -26,6 +19,7 @@ struct SHADER_INPUT
 
 	DirectX::XMFLOAT3 Position;
 	DirectX::XMFLOAT2 Tex;
+	DirectX::XMFLOAT3 Normal;
 };
 
 class ICreateTexture 

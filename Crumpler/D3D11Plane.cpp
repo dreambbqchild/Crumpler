@@ -38,6 +38,12 @@ D3D11Plane::D3D11Plane(ComPtr<ID3D11Device1> &pD3DDevice, ComPtr<ID3D11DeviceCon
 void D3D11Plane::SetShaderInput(function<void(SHADER_INPUT[4])> setCallbackFn) 
 {
 	setCallbackFn(points);
+
+	XMStoreFloat3(&points[0].Normal, XMVector3Cross(XMLoadFloat3(&points[0].Position), XMLoadFloat3(&points[1].Position)));
+	XMStoreFloat3(&points[1].Normal, XMVector3Cross(XMLoadFloat3(&points[1].Position), XMLoadFloat3(&points[2].Position)));
+	XMStoreFloat3(&points[2].Normal, XMVector3Cross(XMLoadFloat3(&points[2].Position), XMLoadFloat3(&points[3].Position)));
+	XMStoreFloat3(&points[3].Normal, XMVector3Cross(XMLoadFloat3(&points[3].Position), XMLoadFloat3(&points[0].Position)));
+
 	pointBuffer = MakeBuffer(pD3DDevice, sizeof(SHADER_INPUT) * 4, points, D3D11_BIND_VERTEX_BUFFER);
 	indexBuffer = MakeBuffer(pD3DDevice, sizeof(indices), indices, D3D11_BIND_INDEX_BUFFER);
 }

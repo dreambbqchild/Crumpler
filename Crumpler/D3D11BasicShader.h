@@ -26,16 +26,9 @@ public:
 	void UpdateModelMatrix(DirectX::XMMATRIX& model);
 	void SetInContext();
 
-	void SetWVP(WVP& value, WVP_MASK::Mask mask)
+	void SetViewProjection(DirectX::XMMATRIX& value)
 	{
-		if (mask & WVP_MASK::World)
-			wvp.world = value.world;
-
-		if (mask & WVP_MASK::View)
-			wvp.view = value.view;
-
-		if (mask & WVP_MASK::Projection)
-			wvp.projection = value.projection;
+		wvp.viewProjection = XMMatrixTranspose(value);
 	}
 
 	void* operator new(size_t i)

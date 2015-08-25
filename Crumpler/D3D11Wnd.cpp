@@ -181,11 +181,10 @@ void D3D11Wnd::Resize()
 	auto adjacent = (-clientSize.cx * 0.5f) / tan(XMConvertToRadians(degrees * 0.5f));
 	auto eye = XMVectorSet(0.0f, 0.0f, (adjacent / aspect), 0.0f);
 
-	WVP wvp;
-	wvp.view = XMMatrixLookAtLH(eye, lookAt, up);
-	wvp.projection = XMMatrixPerspectiveFovLH(XMConvertToRadians(degrees), aspect, 0.01f, 25000.01f);
+	auto view = XMMatrixLookAtLH(eye, lookAt, up);
+	auto projection = XMMatrixPerspectiveFovLH(XMConvertToRadians(degrees), aspect, 0.01f, 25000.01f);
 
-	D3D11BasicShader::Singleton()->SetWVP(wvp, static_cast<WVP_MASK::Mask>(WVP_MASK::View | WVP_MASK::Projection));
+	D3D11BasicShader::Singleton()->SetViewProjection(view * projection);
 }
 
 void D3D11Wnd::Clear()

@@ -14,7 +14,7 @@ D3D11Wnd* pD3DWnd = nullptr;
 D3D11AccordionFold* accordion = nullptr;
 HWND hwndButton = nullptr;
 
-const float animationLength = 1500.0f;
+const float animationLength = 3000.0f;
 bool animationRunning = false;
 float percentage = 0.0f;
 bool needNewImage = false;
